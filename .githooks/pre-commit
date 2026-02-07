@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Block commits on main/master by default.
+# Override for emergency:
+#   ALLOW_MAIN_COMMIT=1 git commit -m "..."
+#
+# Or disable repo-wide by removing .githooks/ or unsetting core.hooksPath.
+
+if [[ "${ALLOW_MAIN_COMMIT:-0}" == "1" ]]; then
+  exit 0
+fi
+
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
+if [[ "$branch" == "main" || "$branch" == "master" ]]; then
+  echo "❌ Refusing to commit on $branch. Create a branch first."
+  echo "Try: git switch -c codex/<issue>-<slug>"
+  exit 1
+fi
+
+exit 0
